@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 3. Start the backend server:
 ```bash
-python signlang.py
+uvicorn signlang:app --reload
 ```
 
 4. Start the frontend server:
