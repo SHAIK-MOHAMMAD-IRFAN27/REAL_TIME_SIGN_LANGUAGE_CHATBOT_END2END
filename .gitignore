@@ -36,6 +36,7 @@ Thumbs.db
 
 # Model weights
 *.h5
+!model_weights.h5
 *.hdf5
 *.pth
 *.pt
