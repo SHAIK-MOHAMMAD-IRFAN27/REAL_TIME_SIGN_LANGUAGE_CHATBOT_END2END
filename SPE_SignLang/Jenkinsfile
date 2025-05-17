@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_FRONTEND = "shaikirfan273/signlang-frontend"
         DOCKER_IMAGE_BACKEND = "shaikirfan273/signlang-backend"
-        SERVER_IP = "172.16.231.25"
+        SERVER_IP = "192.168.0.117"
     }
     
     stages {
