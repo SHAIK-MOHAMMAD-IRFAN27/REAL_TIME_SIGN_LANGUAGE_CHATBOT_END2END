@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE_FRONTEND = "shaikirfan273/signlang-frontend"
+        DOCKER_IMAGE_BACKEND = "shaikirfan273/signlang-backend"
+        SERVER_IP = "172.16.231.25"
+    }
+    
+    stages {
+        stage('Setup Permissions') {
+            steps {
+                script {
+                    sh '''
+                    echo "Granting permissions to Jenkins user.."
+                    sudo usermod -aG docker jenkins
+                    sudo chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+                    sudo chmod 700 /var/lib/jenkins/.ssh
+                    '''
+                }
+            }
+        }
+        
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-username/SPE_SignLang.git'
+            }
+        }
+        
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh 'python -m venv venv'
+                    sh '. venv/bin/activate && pip install -r requirements.txt'
+                }
+            }
+        }
+        
+        stage('Containerize Applications') {
+            steps {
+                script {
+                    sh '''
+                    echo "Building Frontend Docker Image frontend..."
+                    sudo docker build -t ${DOCKER_IMAGE_FRONTEND} ./frontend
+                    
+                    echo "Building Backend Docker Image backend..."
+                    sudo docker build -t ${DOCKER_IMAGE_BACKEND} ./backend
+                    '''
+                }
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials',
+                                                usernameVariable: 'DOCKER_USER',
+                                                passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "Logging into Docker Hub..."
+                    echo "${DOCKER_PASS}" | sudo docker login -u "${DOCKER_USER}" --password-stdin
+                    
+                    echo "Pushing Frontend Image..."
+                    sudo docker push ${DOCKER_IMAGE_FRONTEND}
+                    
+                    echo "Pushing Backend Image..."
+                    sudo docker push ${DOCKER_IMAGE_BACKEND}
+                    '''
+                }
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('k8s') {
+                    script {
+                        sh '''
+                        echo "Updating Kubernetes deployments..."
+                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
+                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
+                        
+                        echo "Applying Kubernetes configurations..."
+                        kubectl apply -f .
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "Pipeline executed successfully! SPE_SignLang application is deployed.."
+        }
+        failure {
+            echo "Pipeline failed! Check the logs for errors..."
+        }
+    }
+} 

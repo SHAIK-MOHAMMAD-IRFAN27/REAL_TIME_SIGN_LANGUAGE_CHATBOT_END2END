@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Language Recognition</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f5f5f5;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .preview, .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result span {
+            font-size: 2em;
+            color: #2e7d32;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sign Language Recognition</h1>
+    {% if username %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <p>Welcome, {{ username }}!</p>
+        <form action="/logout" method="get" style="margin: 0;">
+            <button type="submit" class="btn" style="background-color: #f44336;">Logout</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <form action="/predict?user={{ username }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <br>
+        <button class="btn" type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+    <div class="result">
+        <h2>Predicted Letter:</h2>
+        <span>{{ prediction }}</span>
+    </div>
+    {% endif %}
+
+    {% if image_path %}
+    <div class="preview">
+        <h3>Uploaded Image</h3>
+        <img src="{{ image_path }}" alt="Uploaded Image" width="200">
+        <p>Image Path: {{ image_path }}</p>
+
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: login
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: login
+  template:
+    metadata:
+      labels:
+        app: login
+    spec:
+      initContainers:
+      - name: volume-permissions
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /app/data && chmod -R 777 /app/data"]
+        volumeMounts:
+        - name: db-volume
+          mountPath: /app/data
+      containers:
+      - name: login
+        image: bhavyadora/sllogin:latest
+        ports:
+        - containerPort: 5002
+        volumeMounts:
+        - name: db-volume
+          mountPath: /app/data
+        env:
+        - name: FRONTEND_URL
+          value: "http://signlanguage.local/"
+      volumes:
+      - name: db-volume
+        persistentVolumeClaim:
+          claimName: login-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: login-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: login
+spec:
+  selector:
+    app: login
+  ports:
+  - protocol: TCP
+    port: 80        
+    targetPort: 5002  
+  type: ClusterIP

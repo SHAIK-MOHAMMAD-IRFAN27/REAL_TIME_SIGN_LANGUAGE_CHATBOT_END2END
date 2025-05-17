@@ -1,0 +1,67 @@
+# version: "3.8"
+
+# services:
+#   backend:
+#     build: ./backend
+#     ports:
+#       - "5000:5000" 
+#     restart: always
+#     networks:
+#       - my_network
+
+#   frontend:
+#     build: ./frontend
+#     ports:
+#       - "5001:5001" 
+#     depends_on:
+#       - backend  
+#     restart: always
+#     networks:
+#       - my_network
+
+# networks:
+#   my_network:
+#     driver: bridge
+
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5001:5001"
+    environment:
+      - PREDICTION_SERVICE_URL=http://backend:5000
+      - LOGIN_SERVICE_URL=http://localhost:5002
+    networks:
+      - app-network
+
+  login:
+    build: ./login
+    container_name: login
+    ports:
+      - "5002:5002"
+    environment:
+      - FRONTEND_URL=http://localhost:5001/
+    networks:
+      - app-network
+    volumes:
+      - login_data:/app  # Optional: persists the SQLite database
+
+volumes:
+  login_data:
+
+networks:
+  app-network:
+    driver: bridge
+
+
