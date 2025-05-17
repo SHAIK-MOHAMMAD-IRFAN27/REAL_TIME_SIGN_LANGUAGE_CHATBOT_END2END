@@ -100,10 +100,17 @@ pipeline {
                         sudo mkdir -p /root/.kube
                         sudo chown -R jenkins:jenkins /root/.kube
                         
+                        echo "Fixing Minikube permissions..."
+                        sudo mkdir -p /home/jenkins/.minikube
+                        sudo chown -R jenkins:jenkins /home/jenkins/.minikube
+                        sudo chmod -R u+wrx /home/jenkins/.minikube
+                        
                         echo "Starting Minikube if not running..."
                         if ! minikube status | grep -q "host: Running"; then
                           # Stop any existing minikube instance
                           minikube stop || true
+                          # Delete existing minikube instance
+                          minikube delete || true
                           # Start minikube with force flag
                           sudo -u jenkins minikube start --force
                         fi
