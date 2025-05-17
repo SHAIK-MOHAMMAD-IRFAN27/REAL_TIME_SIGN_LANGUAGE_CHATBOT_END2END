@@ -99,8 +99,8 @@ pipeline {
                         if ! minikube status | grep -q "host: Running"; then
                           # Stop any existing minikube instance
                           minikube stop || true
-                          # Start minikube with none driver
-                          sudo minikube start --driver=none
+                          # Start minikube with force flag
+                          sudo minikube start --force
                         fi
 
                         echo "Updating Kubernetes deployments..."
