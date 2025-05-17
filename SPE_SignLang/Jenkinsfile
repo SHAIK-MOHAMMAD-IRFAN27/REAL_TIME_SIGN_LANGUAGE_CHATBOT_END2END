@@ -102,7 +102,7 @@ pipeline {
                         echo "Applying Kubernetes configurations..."
                         export KUBECONFIG=/var/lib/jenkins/.kube/config
                         sudo mkdir -p /var/lib/jenkins/.kube
-                        sudo cp /home/dell/Documents/SPE_SignLang(1)/jenkins-kubeconfig /var/lib/jenkins/.kube/config
+                        sudo cp "/home/dell/Documents/SPE_SignLang(1)/jenkins-kubeconfig" /var/lib/jenkins/.kube/config
                         sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
                         kubectl config use-context minikube
                         kubectl apply -f . --validate=false
