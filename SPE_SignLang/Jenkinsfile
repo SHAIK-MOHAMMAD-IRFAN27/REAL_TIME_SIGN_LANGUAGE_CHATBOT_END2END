@@ -8,6 +8,20 @@ pipeline {
     }
     
     stages {
+        stage('Configure Jenkins Permissions') {
+            steps {
+                sh '''
+                echo "Configuring Jenkins user permissions..."
+                sudo usermod -aG sudo jenkins
+                sudo usermod -aG docker jenkins
+                echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins
+                sudo chmod 0440 /etc/sudoers.d/jenkins
+                sudo systemctl restart jenkins
+                sudo systemctl restart docker
+                '''
+            }
+        }
+        
         stage('Setup Python') {
             steps {
                 sh '''
@@ -52,10 +66,10 @@ pipeline {
                 script {
                     sh '''
                     echo "Building Frontend Docker Image frontend..."
-                    docker build -t ${DOCKER_IMAGE_FRONTEND} ./SPE_SignLang/frontend
+                    sudo docker build -t ${DOCKER_IMAGE_FRONTEND} ./SPE_SignLang/frontend
                     
                     echo "Building Backend Docker Image backend..."
-                    docker build -t ${DOCKER_IMAGE_BACKEND} ./SPE_SignLang/backend
+                    sudo docker build -t ${DOCKER_IMAGE_BACKEND} ./SPE_SignLang/backend
                     '''
                 }
             }
@@ -68,13 +82,13 @@ pipeline {
                                                 passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                     echo "Logging into Docker Hub..."
-                    echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                    echo "${DOCKER_PASS}" | sudo docker login -u "${DOCKER_USER}" --password-stdin
                     
                     echo "Pushing Frontend Image..."
-                    docker push ${DOCKER_IMAGE_FRONTEND}
+                    sudo docker push ${DOCKER_IMAGE_FRONTEND}
                     
                     echo "Pushing Backend Image..."
-                    docker push ${DOCKER_IMAGE_BACKEND}
+                    sudo docker push ${DOCKER_IMAGE_BACKEND}
                     '''
                 }
             }
