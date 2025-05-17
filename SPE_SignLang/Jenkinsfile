@@ -10,14 +10,10 @@ pipeline {
     stages {
         stage('Setup Python') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'sudo-credentials',
-                                                usernameVariable: 'SUDO_USER',
-                                                passwordVariable: 'SUDO_PASS')]) {
-                    sh '''
-                    echo "${SUDO_PASS}" | sudo -S apt-get update
-                    echo "${SUDO_PASS}" | sudo -S apt-get install -y python3-full python3-pip python3-venv
-                    '''
-                }
+                sh '''
+                sudo apt-get update
+                sudo apt-get install -y python3-full python3-pip python3-venv
+                '''
             }
         }
         
