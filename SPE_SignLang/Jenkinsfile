@@ -97,13 +97,16 @@ pipeline {
                         sh '''
                         echo "Starting Minikube if not running..."
                         if ! minikube status | grep -q "host: Running"; then
-                          sudo minikube start
+                          # Stop any existing minikube instance
+                          minikube stop || true
+                          # Start minikube with none driver
+                          sudo minikube start --driver=none
                         fi
 
                         echo "Updating Kubernetes deployments..."
                         sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
                         sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
-                        
+
                         echo "Applying Kubernetes configurations..."
                         export KUBECONFIG=/var/lib/jenkins/.kube/config
                         sudo mkdir -p /var/lib/jenkins/.kube
