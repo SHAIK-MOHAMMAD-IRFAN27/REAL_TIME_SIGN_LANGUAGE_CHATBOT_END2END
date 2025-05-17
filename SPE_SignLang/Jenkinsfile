@@ -17,8 +17,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
+                    sh 'pip install -r requirements.txt'
                 }
             }
         }
@@ -26,8 +25,8 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'python -m venv venv'
-                    sh '. venv/bin/activate && pip install -r requirements.txt'
+                    sh 'python -m venv myenv'
+                    sh '. myenv/bin/activate && pip install -r requirements.txt'
                 }
             }
         }
