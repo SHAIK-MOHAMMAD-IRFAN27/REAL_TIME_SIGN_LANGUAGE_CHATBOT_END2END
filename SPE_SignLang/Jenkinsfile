@@ -8,15 +8,11 @@ pipeline {
     }
     
     stages {
-        stage('Configure Jenkins Permissions') {
+        stage('Configure Docker Permissions') {
             steps {
                 sh '''
-                echo "Configuring Jenkins user permissions..."
-                sudo usermod -aG sudo jenkins
+                echo "Configuring Docker permissions..."
                 sudo usermod -aG docker jenkins
-                echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins
-                sudo chmod 0440 /etc/sudoers.d/jenkins
-                sudo systemctl restart jenkins
                 sudo systemctl restart docker
                 '''
             }
