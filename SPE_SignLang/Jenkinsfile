@@ -8,6 +8,15 @@ pipeline {
     }
     
     stages {
+        stage('Setup Python') {
+            steps {
+                sh '''
+                sudo apt-get update
+                sudo apt-get install -y python3-full python3-pip python3-venv
+                '''
+            }
+        }
+        
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/SHAIK-MOHAMMAD-IRFAN27/REAL_TIME_SIGN_LANGUAGE_CHATBOT_END2END.git'
@@ -17,7 +26,11 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'pip install -r requirements.txt'
+                    sh '''
+                    python3 -m venv frontend_env
+                    . frontend_env/bin/activate
+                    pip install -r requirements.txt
+                    '''
                 }
             }
         }
@@ -25,8 +38,11 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'python -m venv myenv'
-                    sh '. myenv/bin/activate && pip install -r requirements.txt'
+                    sh '''
+                    python3 -m venv myenv
+                    . myenv/bin/activate
+                    pip install -r requirements.txt
+                    '''
                 }
             }
         }
