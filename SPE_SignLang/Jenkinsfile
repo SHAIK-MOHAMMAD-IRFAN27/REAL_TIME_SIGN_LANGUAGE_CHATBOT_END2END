@@ -95,6 +95,11 @@ pipeline {
                 dir('SPE_SignLang/k8s') {
                     script {
                         sh '''
+                        echo "Starting Minikube if not running..."
+                        if ! minikube status | grep -q "host: Running"; then
+                          sudo minikube start
+                        fi
+
                         echo "Updating Kubernetes deployments..."
                         sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
                         sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
