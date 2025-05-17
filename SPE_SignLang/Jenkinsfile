@@ -95,12 +95,17 @@ pipeline {
                 dir('SPE_SignLang/k8s') {
                     script {
                         sh '''
+                        echo "Configuring system for Minikube..."
+                        sudo sysctl fs.protected_regular=0
+                        sudo mkdir -p /root/.kube
+                        sudo chown -R jenkins:jenkins /root/.kube
+                        
                         echo "Starting Minikube if not running..."
                         if ! minikube status | grep -q "host: Running"; then
                           # Stop any existing minikube instance
                           minikube stop || true
                           # Start minikube with force flag
-                          sudo minikube start --force
+                          sudo -u jenkins minikube start --force
                         fi
 
                         echo "Updating Kubernetes deployments..."
