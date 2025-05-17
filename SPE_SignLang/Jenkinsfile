@@ -94,18 +94,19 @@ pipeline {
             steps {
                 dir('SPE_SignLang/k8s') {
                     script {
-                        withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                            sh '''
-                            echo "Updating Kubernetes deployments..."
-                            sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
-                            sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
-                            
-                            echo "Applying Kubernetes configurations..."
-                            export KUBECONFIG=${KUBECONFIG}
-                            kubectl config use-context minikube
-                            kubectl apply -f . --validate=false
-                            '''
-                        }
+                        sh '''
+                        echo "Updating Kubernetes deployments..."
+                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
+                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
+                        
+                        echo "Applying Kubernetes configurations..."
+                        export KUBECONFIG=/var/lib/jenkins/.kube/config
+                        sudo mkdir -p /var/lib/jenkins/.kube
+                        sudo cp ${WORKSPACE}/jenkins-kubeconfig /var/lib/jenkins/.kube/config
+                        sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
+                        kubectl config use-context minikube
+                        kubectl apply -f . --validate=false
+                        '''
                     }
                 }
             }
