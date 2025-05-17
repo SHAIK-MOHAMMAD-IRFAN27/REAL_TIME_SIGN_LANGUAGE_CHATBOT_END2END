@@ -94,14 +94,18 @@ pipeline {
             steps {
                 dir('SPE_SignLang/k8s') {
                     script {
-                        sh '''
-                        echo "Updating Kubernetes deployments..."
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
-                        
-                        echo "Applying Kubernetes configurations..."
-                        kubectl apply -f .
-                        '''
+                        withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                            sh '''
+                            echo "Updating Kubernetes deployments..."
+                            sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
+                            sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
+                            
+                            echo "Applying Kubernetes configurations..."
+                            export KUBECONFIG=${KUBECONFIG}
+                            kubectl config use-context minikube
+                            kubectl apply -f . --validate=false
+                            '''
+                        }
                     }
                 }
             }
