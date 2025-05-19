@@ -97,7 +97,7 @@ pipeline {
                 echo "Navigating to deployment directory"
                 cd SPE_SignLang
                 echo "Running Kubernetes Minikube Ansible Playbook"
-                ansible-playbook -i hosts.ini k8s-deploy.yml
+                ansible-playbook -i hosts.ini playbok-k8s.yml
                 
                 '''
             }
