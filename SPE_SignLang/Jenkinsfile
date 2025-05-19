@@ -45,50 +45,50 @@ pipeline {
             }
         }
         
-        // stage(' Backend environment') {
-        //     steps {
-        //         dir('SPE_SignLang/backend') {
-        //             sh '''
-        //             python3 -m venv myenv
-        //             . myenv/bin/activate
-        //             pip install -r requirements.txt
-        //             '''
-        //         }
-        //     }
-        // }
+        stage(' Backend environment') {
+            steps {
+                dir('SPE_SignLang/backend') {
+                    sh '''
+                    python3 -m venv myenv
+                    . myenv/bin/activate
+                    pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
         
-        // stage('Containerize Applications') {
-        //     steps {
-        //         script {
-        //             sh '''
-        //             echo "Building Frontend Docker Image frontend..."
-        //             sudo docker build -t ${DOCKER_IMAGE_FRONTEND} ./SPE_SignLang/frontend
+        stage('Containerize Applications') {
+            steps {
+                script {
+                    sh '''
+                    echo "Building Frontend Docker Image frontend..."
+                    sudo docker build -t ${DOCKER_IMAGE_FRONTEND} ./SPE_SignLang/frontend
                     
-        //             echo "Building Backend Docker Image backend..."
-        //             sudo docker build -t ${DOCKER_IMAGE_BACKEND} ./SPE_SignLang/backend
-        //             '''
-        //         }
-        //     }
-        // }
+                    echo "Building Backend Docker Image backend..."
+                    sudo docker build -t ${DOCKER_IMAGE_BACKEND} ./SPE_SignLang/backend
+                    '''
+                }
+            }
+        }
         
-        // stage('Push to Docker Hub') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials',
-        //                                         usernameVariable: 'DOCKER_USER',
-        //                                         passwordVariable: 'DOCKER_PASS')]) {
-        //             sh '''
-        //             echo "Logging into Docker Hub..."
-        //             echo "${DOCKER_PASS}" | sudo docker login -u "${DOCKER_USER}" --password-stdin
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials',
+                                                usernameVariable: 'DOCKER_USER',
+                                                passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "Logging into Docker Hub..."
+                    echo "${DOCKER_PASS}" | sudo docker login -u "${DOCKER_USER}" --password-stdin
                     
-        //             echo "Pushing Frontend Image..."
-        //             sudo docker push ${DOCKER_IMAGE_FRONTEND}
+                    echo "Pushing Frontend Image..."
+                    sudo docker push ${DOCKER_IMAGE_FRONTEND}
                     
-        //             echo "Pushing Backend Image..."
-        //             sudo docker push ${DOCKER_IMAGE_BACKEND}
-        //             '''
-        //         }
-        //     }
-        // }
+                    echo "Pushing Backend Image..."
+                    sudo docker push ${DOCKER_IMAGE_BACKEND}
+                    '''
+                }
+            }
+        }
         
         
         stage('Run docker compose Kubernetes Minikube Playbook') {
