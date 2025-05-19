@@ -90,49 +90,18 @@ pipeline {
             }
         }
         
-        stage('Deploy to Kubernetes') {
+        
+        stage('Run Kubernetes Minikube Playbook') {
             steps {
-                dir('SPE_SignLang/k8s') {
-                    script {
-                        sh '''
-                        echo "Configuring system for Minikube..."
-                        sudo sysctl fs.protected_regular=0
-                        sudo mkdir -p /root/.kube
-                        sudo chown -R jenkins:jenkins /root/.kube
-                        
-                        echo "Fixing Minikube permissions..."
-                        sudo mkdir -p /home/jenkins/.minikube
-                        sudo chown -R jenkins:jenkins /home/jenkins/.minikube
-                        sudo chmod -R u+wrx /home/jenkins/.minikube
-                        
-                        echo "Starting Minikube if not running..."
-                        if ! minikube status | grep -q "host: Running"; then
-                          # Stop any existing minikube instance
-                          minikube stop || true
-                          # Delete existing minikube instance
-                          minikube delete || true
-                          # Start minikube with force flag
-                          sudo -u jenkins minikube start --force
-                        fi
-
-                        echo "Updating Kubernetes deployments..."
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_FRONTEND}|g" frontend-deployment.yaml
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE_BACKEND}|g" backend-deployment.yaml
-
-                        echo "Applying Kubernetes configurations..."
-                        export KUBECONFIG=/var/lib/jenkins/.kube/config
-                        sudo mkdir -p /var/lib/jenkins/.kube
-                        sudo cp "/home/dell/Documents/SPE_SignLang(1)/jenkins-kubeconfig" /var/lib/jenkins/.kube/config
-                        sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
-                        kubectl config use-context minikube
-                        kubectl apply -f . --validate=false
-                        '''
-                    }
-                }
+                sh '''
+                echo "Running Kubernetes Minikube Ansible Playbook"
+                ansible-playbook -i hosts.ini k8s-deploy.yml
+                '''
             }
         }
+
     }
-    
+
     post {
         success {
             echo "Pipeline executed successfully! SPE_SignLang application is deployed.."

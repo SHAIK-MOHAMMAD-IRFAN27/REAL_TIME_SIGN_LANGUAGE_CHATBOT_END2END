@@ -1,7 +1,11 @@
 flask
+werkzeug
 uvicorn
 numpy
 Pillow
 python-multipart
 keras
 tensorflow
+python-logstash
+opencv-python
+mediapipe

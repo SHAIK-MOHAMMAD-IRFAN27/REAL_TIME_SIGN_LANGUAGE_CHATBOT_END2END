@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    volumes:
+      - ./logs:/var/log/app
+    depends_on:
+      - logstash
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  login:
+    build: ./login
+    container_name: login
+    ports:
+      - "5002:5002"
+    environment:
+      - FRONTEND_URL=http://frontend:5001/
+    networks:
+      - app-network
+    volumes:
+      - ./logs:/var/log/app
+    env_file:
+      - .env
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logs:/var/log/app
+    environment:
+      - PREDICTION_SERVICE_URL=http://backend:5000
+      - LOGIN_SERVICE_URL=http://login:5002
+    networks:
+      - app-network
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - login
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+    
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.0
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logs:/var/log/app
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+    
+
+volumes:
+  elasticsearch-data:
+
+networks:
+  app-network:
+    driver: bridge

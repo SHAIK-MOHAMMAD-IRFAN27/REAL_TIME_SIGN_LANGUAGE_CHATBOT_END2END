@@ -1,19 +1,17 @@
-FROM tensorflow/tensorflow:2.15.0
+FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy only requirements first (to cache dependencies if unchanged)
+# Copy dependency list and install
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Python dependencies with --ignore-installed flag
-RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
-
-# Copy the rest of the app
+# Copy application code
 COPY . .
 
-# Expose Flask on port 5000 (default for Flask)
+# Expose Flask port
 EXPOSE 5000
 
-# Run Flask application (assuming app.py is the entry point)
+# Run app
 CMD ["python", "signlang.py"]
