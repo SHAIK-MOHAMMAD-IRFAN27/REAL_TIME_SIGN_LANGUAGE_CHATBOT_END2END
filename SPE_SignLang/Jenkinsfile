@@ -94,14 +94,11 @@ pipeline {
         stage('Run docker compose Kubernetes Minikube Playbook') {
             steps {
                 sh '''
-                echo "Navigating to the deployment directory"
-                cd SPE_SignLang
-                echo "run docker compose"
-                docker-compose up -d
+                echo "Running Docker Compose to bring up app and ELK stack"
+                docker-compose up -d --build
                 echo "Running Kubernetes Minikube Ansible Playbook"
                 ansible-playbook -i hosts.ini playbook.yml
-                
-                '''
+            '''
             }
         }
 
