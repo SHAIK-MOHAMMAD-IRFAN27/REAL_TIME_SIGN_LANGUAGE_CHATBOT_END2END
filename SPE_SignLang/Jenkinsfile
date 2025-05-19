@@ -96,6 +96,8 @@ pipeline {
                 sh '''
                 echo "Navigating to the deployment directory"
                 cd SPE_SignLang
+                echo "run docker compose"
+                docker-compose up -d
                 echo "Running Kubernetes Minikube Ansible Playbook"
                 ansible-playbook -i hosts.ini playbook.yml
                 
