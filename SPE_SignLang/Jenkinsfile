@@ -94,6 +94,14 @@ pipeline {
         stage('Run docker compose Kubernetes Minikube Playbook') {
             steps {
                 sh '''
+                echo "Navigating to the deployment directory"
+                cd SPE_SignLang
+                echo "Creating .env file for frontend and login services"
+                cat <<EOF > .env
+                FRONTEND_URL=http://frontend:5001/
+                PREDICTION_SERVICE_URL=http://backend:5000
+                LOGIN_SERVICE_URL=http://login:5002
+                EOF
                 echo "Running Docker Compose to bring up app and ELK stack"
                 docker-compose up -d --build
                 echo "Running Kubernetes Minikube Ansible Playbook"
