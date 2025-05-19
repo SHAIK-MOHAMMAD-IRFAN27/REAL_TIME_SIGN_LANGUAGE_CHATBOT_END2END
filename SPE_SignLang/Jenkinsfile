@@ -94,7 +94,7 @@ pipeline {
         stage('Run docker compose Kubernetes Minikube Playbook') {
             steps {
                 sh '''
-                echo "Navigating to deployment directory"
+                echo "Navigating to the deployment directory"
                 cd SPE_SignLang
                 echo "Running Kubernetes Minikube Ansible Playbook"
                 ansible-playbook -i hosts.ini playbook.yml
