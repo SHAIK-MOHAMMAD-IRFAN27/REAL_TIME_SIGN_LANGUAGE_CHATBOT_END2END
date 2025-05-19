@@ -91,9 +91,10 @@ pipeline {
         // }
         
         
-        stage('Run Kubernetes Minikube Playbook') {
+        stage('Run docker compose Kubernetes Minikube Playbook') {
             steps {
                 sh '''
+                docker-compose up -d
                 echo "Running Kubernetes Minikube Ansible Playbook"
                 ansible-playbook -i hosts.ini k8s-deploy.yml
                 
