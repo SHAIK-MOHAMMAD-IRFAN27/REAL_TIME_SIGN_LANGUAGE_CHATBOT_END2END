@@ -7,7 +7,7 @@ import json
 import logging
 
 app = Flask(__name__)
-# app.secret_key = '09edfe6d16b0c1faad53e2d1b0b235fbc942142bb25ccdac5e877e9dce73c202'  # Add a secure secret key
+# app.secret_key = '09edfe6d16b0c1faad53e2d1b0b235fbc942142bb25ccdac5e877e9dce73c202'  # Add a secure secret key my jey
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'fallback_dev_key')
 
 def setup_logger():
