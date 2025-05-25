@@ -4,7 +4,7 @@ import sys
 import os
 import datetime
 
-# Create logger
+# Create loggers
 logger = logging.getLogger("signlang-backend")
 logger.setLevel(logging.INFO)
 
